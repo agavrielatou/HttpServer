@@ -1,1 +1,1 @@
-docker run -it hellocloudreachmain:1.0
+docker run -it --publish 8000:8000 hellocloudreachmain:1.0
