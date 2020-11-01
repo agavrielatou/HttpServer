@@ -8,3 +8,7 @@ Dockerfile for the Postgres database is also included. Run postgres/build.sh to 
 Tested it using Postman.
 Was also able to test it with AWS RDS Postgres database.
 
+Followed step by step additions and commits.
+My first project in Go!
+
+
