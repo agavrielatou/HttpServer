@@ -1,8 +1,12 @@
-FROM golang:alpine
+FROM golang
+
 RUN mkdir /app 
 ADD . /app/
-WORKDIR /app 
+WORKDIR /app
+
+RUN go get github.com/lib/pq
+RUN go install github.com/lib/pq
+
 RUN go build -o main .
-RUN adduser -S -D -H -h /app appuser
-USER appuser
 CMD ["./main"]
+
