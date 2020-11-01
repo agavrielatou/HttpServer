@@ -1,12 +1,10 @@
-HttpServer project is a web server that accepts "GET" requests, looks for malformed URLs and replies to sender with a response about whether the URL was malformed or not.
+HttpServer project is an HTTP server that accepts "GET" requests. For every request, it looks at a Postgres database to check if the given URL is included in the malformed ones and replies to sender with a response about whether the URL is valid or not. Server works with a JSON configuration file (config.json). Also long URLs are encoded using base64.
 
 Use build.sh to build the Docker image.
 Use run.sh to run the web server.
 
-Tested it with:
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:8080/hello
--> expected result 200 OK "Hello"
+Dockerfile for the Postgres database is also included. Run postgres/build.sh to build the image and postgres/run.sh to run it. It adds a table with 5 malformed urls for the purpose of this demo.
 
-and
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:8080/hellob
--> expected result 404
+Tested it using Postman.
+Was also able to test it with AWS RDS Postgres database.
+
