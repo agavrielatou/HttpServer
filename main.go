@@ -7,6 +7,7 @@ import (
     "strings"
     "encoding/json"
     "os"
+    b64 "encoding/base64"
 
      "database/sql"
    _ "github.com/lib/pq"
@@ -23,6 +24,16 @@ type Configuration struct {
     Listen struct {
         Port    string
     }
+}
+
+func shortenUrl(original_url string) string {
+    data := []byte(original_url)
+    shortened_url := b64.StdEncoding.EncodeToString(data)
+        
+    if(len(shortened_url) >= len(original_url)) {
+        shortened_url = original_url
+    }
+    return shortened_url
 }
 
 func findUrlInDB(url string, configuration* Configuration) bool {
@@ -84,14 +95,15 @@ func (configuration* Configuration) getHandler(w http.ResponseWriter, r *http.Re
         return
     }
     url := r.URL.Path[adjustedPos:len(r.URL.Path)]
+    shortened_url := shortenUrl(url)
 
-    urlFound := findUrlInDB(url, configuration)
+    urlFound := findUrlInDB(shortened_url, configuration)
     if urlFound {
-        fmt.Fprintf(w, "Invalid URL: %s", url)
+        fmt.Fprintf(w, "invalid: %s", url)
         return
     }
 
-    fmt.Fprintf(w, "Valid myURL: %s", url)
+    fmt.Fprintf(w, "valid: %s", url)
 }
 
 func main() {
