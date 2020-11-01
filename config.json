@@ -1,0 +1,12 @@
+{
+    "Db": {
+        "Host": "localhost",
+        "Port": "5432",
+        "User": "docker",
+        "Password": "docker",
+        "Database": "postgres"
+    },
+    "Listen": {
+        "Port": "8090"
+    }
+}

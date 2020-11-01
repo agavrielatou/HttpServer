@@ -5,25 +5,33 @@ import (
     "log"
     "net/http"
     "strings"
+    "encoding/json"
+    "os"
 
      "database/sql"
    _ "github.com/lib/pq"
 )
 
-const (
-//  host     = "malformedurls.cydwrqsworn7.us-east-2.rds.amazonaws.com"
-  host     = "localhost"
-  port     = 5432
-  user     = "docker"
-  password = "docker"
-  dbname   = "postgres"
-)
+type Configuration struct {
+    Db struct {
+        Host     string
+        Port     string
+        User     string
+        Password string
+        Database string
+    }
+    Listen struct {
+        Port    string
+    }
+}
 
-func findUrlInDB(url string) bool {
+func findUrlInDB(url string, configuration* Configuration) bool {
     // connect to AWS RDS that had sample malformed URLs
-    psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+    psqlInfo := fmt.Sprintf("host=%s port=%s user=%s "+
       "password=%s dbname=%s sslmode=disable",
-      host, port, user, password, dbname)
+      configuration.Db.Host, configuration.Db.Port, 
+      configuration.Db.User, configuration.Db.Password, 
+      configuration.Db.Database)
 
     db, err := sql.Open("postgres", psqlInfo)
     if err != nil {
@@ -55,7 +63,7 @@ func findUrlInDB(url string) bool {
 
 // need to support GET requests:
 // /urlinfo/1/{hostname_and_port}/{original_path_and_query_string}
-func getHandler(w http.ResponseWriter, r *http.Request) {
+func (configuration* Configuration) getHandler(w http.ResponseWriter, r *http.Request) {
 
     if !strings.HasPrefix(r.URL.Path, "/urlinfo/1/")  {
         http.Error(w, "404 not found.", http.StatusNotFound)
@@ -77,7 +85,7 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
     }
     url := r.URL.Path[adjustedPos:len(r.URL.Path)]
 
-    urlFound := findUrlInDB(url)
+    urlFound := findUrlInDB(url, configuration)
     if urlFound {
         fmt.Fprintf(w, "Invalid URL: %s", url)
         return
@@ -88,11 +96,21 @@ func getHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
-    // Set up Http request handler
-    http.HandleFunc("/", getHandler)
+    file, _ := os.Open("config.json")
+    defer file.Close()
+    decoder := json.NewDecoder(file)
+    configuration := Configuration{}
+    err := decoder.Decode(&configuration)
+    if err != nil {
+        fmt.Println("Config error:", err)
+    }
 
-    fmt.Printf("Starting server at port 8080\n")
-    if err := http.ListenAndServe(":8080", nil); err != nil {
+    // Set up Http request handler
+    http.HandleFunc("/", configuration.getHandler)
+
+    fmt.Printf("Starting server at port %s\n", configuration.Listen.Port)
+    port := fmt.Sprintf(":%s", configuration.Listen.Port)
+    if err := http.ListenAndServe(port, nil); err != nil {
         log.Fatal(err)
     }
 }
