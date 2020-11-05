@@ -5,7 +5,7 @@ Use run.sh to run the web server.
 
 Dockerfile for the Postgres database is also included. Run postgres/build.sh to build the image and postgres/run.sh to run it. It adds a table with 5 malformed urls for the purpose of this demo.
 
-Tested it using Postman.
+Tested it using a Linux machine and Postman tool.
 Was also able to test it with AWS RDS Postgres database.
 
 Followed step by step additions and commits.
