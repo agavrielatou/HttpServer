@@ -27,11 +27,11 @@ RUN    /etc/init.d/postgresql start &&\
     psql --command "CREATE USER docker WITH SUPERUSER PASSWORD 'docker';" &&\
     createdb -O docker docker &&\
     psql --command "CREATE TABLE malformedurl (url TEXT);" &&\
-    psql --command "INSERT INTO malformedurl (url) VALUES ('http://malformed_url1');" &&\
-    psql --command "INSERT INTO malformedurl (url) VALUES ('http://malformed_url2');" &&\
-    psql --command "INSERT INTO malformedurl (url) VALUES ('http://malformed_url3');" &&\
-    psql --command "INSERT INTO malformedurl (url) VALUES ('http://malformed_url4');" &&\
-    psql --command "INSERT INTO malformedurl (url) VALUES ('http://malformed_url5');"
+    psql --command "INSERT INTO malformedurl (url) VALUES ('malformed_url1');" &&\
+    psql --command "INSERT INTO malformedurl (url) VALUES ('malformed_url2');" &&\
+    psql --command "INSERT INTO malformedurl (url) VALUES ('malformed_url3');" &&\
+    psql --command "INSERT INTO malformedurl (url) VALUES ('malformed_url4');" &&\
+    psql --command "INSERT INTO malformedurl (url) VALUES ('malformed_url5');"
 
 # Adjust PostgreSQL configuration so that remote connections to the
 # database are possible.

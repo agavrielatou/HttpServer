@@ -85,18 +85,39 @@ func (configuration* Configuration) getHandler(w http.ResponseWriter, r *http.Re
         return
     }
 
+    // get the substring after prefix
     prefix := "/urlinfo/1/"
     pos := strings.LastIndex(r.URL.Path, prefix)
     if pos == -1 {
+        http.Error(w, "404 not found.", http.StatusNotFound)
         return
     }
-    adjustedPos := pos + len(prefix)
-    if adjustedPos >= len(r.URL.Path) {
+    adjustedPosAfterPrefix := pos + len(prefix)
+    if adjustedPosAfterPrefix >= len(r.URL.Path) {
+        http.Error(w, "404 not found.", http.StatusNotFound)
         return
     }
-    url := r.URL.Path[adjustedPos:len(r.URL.Path)]
+    urlWithoutPrefix := r.URL.Path[adjustedPosAfterPrefix:len(r.URL.Path)]
+
+    // check that there is at least 1 '/' after prefix
+    idx := strings.IndexByte(urlWithoutPrefix, '/')
+    if idx < 0 || idx >= len(urlWithoutPrefix) {
+        http.Error(w, "404 not found.", http.StatusNotFound)
+        return
+    }
+
+    // get the substring from after prefix until first ':'
+    idx2 := strings.IndexByte(urlWithoutPrefix, ':')
+    if idx2 < 0 || idx ==(idx2 + 1) {
+        http.Error(w, "404 not found.", http.StatusNotFound)
+        return
+    }
+    url := urlWithoutPrefix[:idx2]
+
+    // get shorter url if base64 result is shorter 
     shortened_url := shortenUrl(url)
 
+    // DB lookup
     urlFound := findUrlInDB(shortened_url, configuration)
     if urlFound {
         fmt.Fprintf(w, "invalid: %s", url)
